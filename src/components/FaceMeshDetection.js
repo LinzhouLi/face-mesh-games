@@ -26,7 +26,7 @@ class FaceMeshDetection {
   #upThres = 0.7;
   #downThres = 0.35;
 
-  #debounceTime = 200; // ms
+  #debounceTime = 300; // ms
 
   constructor(cb) {
 
@@ -74,10 +74,8 @@ class FaceMeshDetection {
       if (dir != this.lastDir) { // 方向改变, 立即回调
         this.lastDir = dir;
         this.cb(dir);
-        if (timer) {
-          clearTimeout(timer);
-          timer = null;
-        }
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => timer = null, this.#debounceTime);
       } else if (!timer) { // 方向不变, 需要考虑debounceTime
         timer = setTimeout(() => timer = null, this.#debounceTime);
         this.cb(dir);

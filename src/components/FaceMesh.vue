@@ -1,23 +1,23 @@
 <script setup>
 
-  import { onMounted, ref } from 'vue';
-  import { FaceMeshDetection, DIRECTION } from './FaceMeshDetection.js';
+import { onMounted, ref } from 'vue';
+import { FaceMeshDetection, DIRECTION } from './FaceMeshDetection.js';
 
-  const direction = ref('none');
-  let faceMeshDet = new FaceMeshDetection(dir => {
-    console.log(dir)
-    direction.value = dir;
-  });
+const direction = ref('none');
+let faceMeshDet = new FaceMeshDetection(dir => {
+  console.log(dir)
+  direction.value = dir;
+});
 
-  onMounted(() => {
-    const canvasElement = document.getElementById('output_canvas');
+onMounted(() => {
+  const canvasElement = document.getElementById('output_canvas');
 
-    canvasElement.width = 1280;
-    canvasElement.height = 720;
+  canvasElement.width = 1280;
+  canvasElement.height = 720;
 
-    faceMeshDet.setCanvas(canvasElement);
-    faceMeshDet.init();
-  });
+  faceMeshDet.setCanvas(canvasElement);
+  faceMeshDet.init();
+});
 
 </script>
 
