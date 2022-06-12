@@ -1,6 +1,7 @@
 <script>
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
+import { ElMessageBox } from 'element-plus';
 import { FaceMeshDetection, DIRECTION } from './FaceMeshDetection.js';
 
 export default {
@@ -8,6 +9,9 @@ export default {
   data() {
     return {
       loading: true,
+      GameOver: true,
+      score: 0,
+      costTime: 0,
       grid: [],
       gridXMax: 21,
       gridXMin: 0,
@@ -212,7 +216,6 @@ export default {
           });
         });
       this.grid = grid;
-      console.log(this.grid)
     },
     getStrawberries(grid, XMax) {
       const flatted = grid
@@ -276,9 +279,27 @@ export default {
         .forEach((cell) => {
           switch (cell.type) {
             case this.CELL_TYPES.finish:
-              this.updateGridSize();
+              this.GameOver = true;
+              ElMessageBox.alert(
+                `<div>Your Score: ${this.score}</div><div>Cost time: ${this.costTime}s</div>`,
+                'You Win!',
+                {
+                  dangerouslyUseHTMLString: true,
+                  confirmButtonText: 'Restart',
+                  showCancelButton: true,
+                  cancelButtonText: 'Back'
+                }
+              )
+                .then(() => {
+                  this.updateGridSize();
+                  this.start();
+                })
+                .catch(() => {
+                  this.goto('home');
+                })
               break;
             case this.CELL_TYPES.strawberry:
+              this.score++;
               break;
             default:
           }
@@ -297,6 +318,19 @@ export default {
       this.gridYMax = this.currentGridSize.y;
       this.renderGrid();
       this.resetPlayer();
+    },
+    start() {
+      this.GameOver = false;
+      this.score = 0;
+      let startTime = performance.now();
+      let timeRecord = () => {
+        if (!this.GameOver) {
+          let endTime = performance.now();
+          this.costTime = Math.floor((endTime - startTime) / 1000);
+          setTimeout(timeRecord, 1000);
+        }
+      }
+      timeRecord();
     },
     resetPlayer() {
       this.player = { ...this.PLAYER_START };
@@ -350,6 +384,9 @@ export default {
           arrows(keycode);
       }
     },
+    goto(path) {
+      this.$router.push({ name: path });
+    }
   },
   watch: {
     player: {
@@ -364,27 +401,34 @@ export default {
     this.player = { ...this.PLAYER_START };
     this.playerIcon = this.randomPlayerIcon();
     this.mystrawberry = this.randomStrawberry();
-  },
-  created() {
+
+    const canvasElement = document.getElementById('output_canvas');
     document.addEventListener('keydown', (event) => this.keyboardHandler(event.code));
     let facemeshDet = new FaceMeshDetection(dir => {
-      console.log(dir);
       if (this.loading) { // 加载完成
         this.loading = false;
+        this.start();
       }
       else this.facemeshHandler(dir);
     });
+    facemeshDet.setCanvas(canvasElement);
     facemeshDet.init();
-    this.gridXMax = this.currentGridSize.x;
-    this.gridYMax = this.currentGridSize.y;
+    this.updateGridSize();
+  }
 
-    this.renderGrid();
-    this.resetPlayer();
-  },
 }
 </script>
 
 <template>
+  <div id="score">
+    <div>Score: {{ score }}</div>
+    <div>Time: {{ costTime }}s</div>
+  </div>
+
+  <el-button id="back_btn" type="primary" @click="goto('home')">Back</el-button>
+
+  <canvas id="output_canvas" width="1280" height="720"></canvas>
+
   <div class="d-flex justify-content-center" v-loading="loading" element-loading-text="Loading...">
     <div class="main-container">
       <div class="grid-wrapper">
@@ -405,10 +449,33 @@ export default {
 </template>
 
 <style scoped>
+#back_btn {
+  position: absolute;
+  top: 5vh;
+  right: 6vw;
+  padding: 20px 25px;
+  font-size: 25px;
+}
+
+#output_canvas {
+  position: absolute;
+  bottom: 2vh;
+  right: 2vw;
+  width: 240px;
+  height: 135px;
+}
+
+#score {
+  font-size: 25px;
+  position: absolute;
+  left: 50px;
+  top: 50px;
+}
+
 .grid-wrapper {
   width: fit-content;
   border: 1px solid black;
-  background-image: url(@/assets/stone_2.jpg);
+  background-image: url(@/assets/pacman/stone_2.jpg);
   background-size: 80px;
   position: relative;
 }
@@ -420,13 +487,13 @@ export default {
 
 .cell-icon.icon-brick {
   box-shadow: 0 0 0 1px rgba(42, 41, 37, 0.7) inset;
-  background-image: url(@/assets/stone.jpg);
+  background-image: url(@/assets/pacman/stone.jpg);
   white-space: nowrap;
 }
 
 .cell-block {
   box-shadow: 0 0 0 1px rgba(42, 41, 37, 0.7) inset;
-  background-image: url(@/assets/stone.jpg);
+  background-image: url(@/assets/pacman/stone.jpg);
   white-space: nowrap;
 }
 

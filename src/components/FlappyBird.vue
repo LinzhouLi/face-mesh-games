@@ -2,6 +2,8 @@
 
   <div id="wrap" v-loading="loading" element-loading-text="Loading...">
 
+    <canvas id="output_canvas" width="1280" height="720"></canvas>
+
     <div>
       <div id="sky" ref="sky"></div>
       <div id="bird" ref="bird"></div>
@@ -29,13 +31,14 @@ import { ElMessageBox } from 'element-plus';
 import { FaceMeshDetection, DIRECTION } from './FaceMeshDetection.js';
 
 const START_SPEED = 1;
+const PIPE_SPEED = 8;
 const KEY = 'Space';
-const SPEED = 0.005;                  // 加速度
-const UP = 5.0;                       // 速度累加上限
-const UP_SUM = 100;                   // 按一次跳跃的高度
-const BIRD_WIDTH = 50;                // 小鸟图片宽50px
-const PIPE_DISTANCE = 350;            // 管道之间的横向距离
-const SPACE_HEIGHT = [360, 300, 240]; // 上管道与下管道之间的距离
+const SPEED = 0.1;                     // 加速度
+const UP = 5.0;                        // 速度累加上限
+const UP_SUM = 80;                     // 一次跳跃的高度
+const BIRD_WIDTH = 50;                 // 小鸟图片宽50px
+const PIPE_DISTANCE = 350;             // 管道之间的横向距离
+const SPACE_HEIGHT = [360, 300, 240];  // 上管道与下管道之间的距离
 const x = 300;
 const y = 300;
 
@@ -61,6 +64,7 @@ export default {
   mounted() {
     this.clientHeight = document.documentElement.clientHeight;
     this.clientWidth = document.documentElement.clientWidth;
+    const canvasElement = document.getElementById('output_canvas');
 
     // 设置按键绑定
     document.onkeydown = event => {
@@ -71,12 +75,14 @@ export default {
     let facemeshDet = new FaceMeshDetection(dir => {
       if (this.loading) { // 加载完成
         this.loading = false;
+        this.init(); // 初始化数据
       }
       else if (dir == DIRECTION.DOWN) {
         console.log('down');
         this.handleKeyPress(KEY);
       }
     });
+    facemeshDet.setCanvas(canvasElement);
     facemeshDet.debounceTime = 300;
     facemeshDet.init();
 
@@ -89,8 +95,6 @@ export default {
       requestAnimationFrame(animationLoop);
     }
     animationLoop();
-
-    this.init(); // 初始化数据
 
   },
 
@@ -209,7 +213,7 @@ export default {
         if (this.pipeArr[i].right >= this.clientWidth - 300) { // 当某个管道刚好在小鸟左边，证明小鸟通过该管道，根据管道id算出小鸟得分
           this.score = this.pipeArr[i].id + 1;
         }
-        this.pipeArr[i].right = this.pipeArr[i].right + 3; // 管道每帧移动2px
+        this.pipeArr[i].right = this.pipeArr[i].right + PIPE_SPEED; // 管道每帧移动
       }
     },
 
@@ -233,6 +237,15 @@ export default {
 </script>
 
 <style scoped>
+#output_canvas {
+  position: absolute;
+  bottom: 2vh;
+  right: 2vw;
+  width: 240px;
+  height: 135px;
+  z-index: 5;
+}
+
 #wrap {
   position: absolute;
   top: 0;
@@ -244,7 +257,7 @@ export default {
 
 #score {
   color: whitesmoke;
-  font-size: 20px;
+  font-size: 25px;
   position: absolute;
   left: 50px;
   top: 50px;
@@ -276,6 +289,7 @@ export default {
 #pipes-wrap {
   position: relative;
   height: 100%;
+  z-index: 4;
 }
 
 .pipe-item {
