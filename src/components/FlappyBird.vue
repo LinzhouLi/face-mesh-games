@@ -71,13 +71,13 @@ export default {
     let facemeshDet = new FaceMeshDetection(dir => {
       if (this.loading) { // 加载完成
         this.loading = false;
-        this.init(); // 初始化数据
       }
       else if (dir == DIRECTION.DOWN) {
         console.log('down');
         this.handleKeyPress(KEY);
       }
     });
+    facemeshDet.debounceTime = 300;
     facemeshDet.init();
 
     // 设置动画循环
@@ -89,6 +89,8 @@ export default {
       requestAnimationFrame(animationLoop);
     }
     animationLoop();
+
+    this.init(); // 初始化数据
 
   },
 

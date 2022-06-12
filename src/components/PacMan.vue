@@ -1,10 +1,13 @@
 <script>
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.min.js'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.min.js';
+import { FaceMeshDetection, DIRECTION } from './FaceMeshDetection.js';
+
 export default {
   name: 'PacMan',
-  data () {
+  data() {
     return {
+      loading: true,
       grid: [],
       gridXMax: 21,
       gridXMin: 0,
@@ -14,11 +17,11 @@ export default {
       playerIcon: null,
       mystrawberry: null,
       currentGridSize: {
-        x:21,
-        y:21,
+        x: 21,
+        y: 21,
       },
       ICONS: ['🐶', '🐱', '🐭', '🐨', '🐵', '🐸'],
-      LIKESTRAWBERRY:['🍓', '🍀', '🍒', '🍗'],
+      LIKESTRAWBERRY: ['🍓', '🍀', '🍒', '🍗'],
       CELL_TYPES: {
         block: 'block',
         player: 'player',
@@ -44,7 +47,7 @@ export default {
       },
     };
   },
-  methods:{
+  methods: {
     maze(inputX, inputY) {
       const x = (inputX - 1) / 2;
       const y = (inputY - 1) / 2;
@@ -80,7 +83,7 @@ export default {
 
         for (let k = 0; k < y + 1; k += 1) {
           unvisited[j]
-              .push(j > 0 && j < x + 1 && k > 0 && (j !== here[0] + 1 || k !== here[1] + 1));
+            .push(j > 0 && j < x + 1 && k > 0 && (j !== here[0] + 1 || k !== here[1] + 1));
         }
       }
 
@@ -200,35 +203,35 @@ export default {
       // init strawberries
       const strawberries = this.getStrawberries(grid, this.gridXMax);
       grid
-          .flat()
-          .forEach((cell) => {
-            strawberries.forEach((strawberry) => {
-              if (cell.x === strawberry.x && cell.y === strawberry.y) {
-                cell.type = this.CELL_TYPES.strawberry;
-              }
-            });
+        .flat()
+        .forEach((cell) => {
+          strawberries.forEach((strawberry) => {
+            if (cell.x === strawberry.x && cell.y === strawberry.y) {
+              cell.type = this.CELL_TYPES.strawberry;
+            }
           });
+        });
       this.grid = grid;
       console.log(this.grid)
     },
     getStrawberries(grid, XMax) {
       const flatted = grid
-          .flat()
-          .filter((cell) => {
-            if ([
-              this.CELL_TYPES.block,
-              this.CELL_TYPES.player,
-              this.CELL_TYPES.finish,
-            ].includes(cell.type)) {
-              return false;
-            }
+        .flat()
+        .filter((cell) => {
+          if ([
+            this.CELL_TYPES.block,
+            this.CELL_TYPES.player,
+            this.CELL_TYPES.finish,
+          ].includes(cell.type)) {
+            return false;
+          }
 
-            if (cell.x === this.PLAYER_START.x && cell.y === this.PLAYER_START.y) {
-              return false;
-            }
+          if (cell.x === this.PLAYER_START.x && cell.y === this.PLAYER_START.y) {
+            return false;
+          }
 
-            return true;
-          });
+          return true;
+        });
 
       let strawberriesCount = 0;
 
@@ -255,36 +258,36 @@ export default {
     },
     renderPlayer() {
       this.grid
-          .flat()
-          .filter((cell) => cell.type !== this.CELL_TYPES.block)
-          .forEach((cell) => {
-            if (cell.x === this.player.x && cell.y === this.player.y) {
-              cell.type = this.CELL_TYPES.player;
-            } else if (cell.type === this.CELL_TYPES.player) {
-              cell.type = null;
-            }
-          });
+        .flat()
+        .filter((cell) => cell.type !== this.CELL_TYPES.block)
+        .forEach((cell) => {
+          if (cell.x === this.player.x && cell.y === this.player.y) {
+            cell.type = this.CELL_TYPES.player;
+          } else if (cell.type === this.CELL_TYPES.player) {
+            cell.type = null;
+          }
+        });
     },
     beforeMoveHook() {
       this.grid
-          .flat()
-          .filter((cell) => cell.type !== this.CELL_TYPES.block)
-          .filter((cell) => cell.x === this.player.x && cell.y === this.player.y)
-          .forEach((cell) => {
-            switch (cell.type) {
-              case this.CELL_TYPES.finish:
-                this.updateGridSize();
-                break;
-              case this.CELL_TYPES.strawberry:
-                break;
-              default:
-            }
-          });
+        .flat()
+        .filter((cell) => cell.type !== this.CELL_TYPES.block)
+        .filter((cell) => cell.x === this.player.x && cell.y === this.player.y)
+        .forEach((cell) => {
+          switch (cell.type) {
+            case this.CELL_TYPES.finish:
+              this.updateGridSize();
+              break;
+            case this.CELL_TYPES.strawberry:
+              break;
+            default:
+          }
+        });
     },
     isBlock(x, y) {
       return this.grid
-          .flat()
-          .some((cell) => cell.x === x && cell.y === y && cell.type === this.CELL_TYPES.block);
+        .flat()
+        .some((cell) => cell.x === x && cell.y === y && cell.type === this.CELL_TYPES.block);
     },
     updateGridSize(payload) {
       if (payload) {
@@ -303,9 +306,25 @@ export default {
       return [...this.ICONS].sort(() => 0.5 - Math.random())[0];
     },
     randomStrawberry() {
-        return [...this.LIKESTRAWBERRY].sort(() => 0.5 - Math.random())[0];
+      return [...this.LIKESTRAWBERRY].sort(() => 0.5 - Math.random())[0];
     },
-    keyboardHandler(event) {
+    facemeshHandler(dir) {
+      switch (dir) {
+        case DIRECTION.UP:
+          this.move('up');
+          break;
+        case DIRECTION.DOWN:
+          this.move('down');
+          break;
+        case DIRECTION.RIGHT:
+          this.move('right');
+          break;
+        case DIRECTION.LEFT:
+          this.move('left');
+          break;
+      }
+    },
+    keyboardHandler(keycode) {
       const arrows = (code) => {
         switch (code) {
           case 'ArrowUp':
@@ -324,11 +343,11 @@ export default {
         }
       };
 
-      switch (event.code) {
+      switch (keycode) {
         case 'Space':
           break;
         default:
-          arrows(event.code);
+          arrows(keycode);
       }
     },
   },
@@ -347,10 +366,18 @@ export default {
     this.mystrawberry = this.randomStrawberry();
   },
   created() {
-    document.addEventListener('keydown', (event) => this.keyboardHandler(event));
+    document.addEventListener('keydown', (event) => this.keyboardHandler(event.code));
+    let facemeshDet = new FaceMeshDetection(dir => {
+      console.log(dir);
+      if (this.loading) { // 加载完成
+        this.loading = false;
+      }
+      else this.facemeshHandler(dir);
+    });
+    facemeshDet.init();
     this.gridXMax = this.currentGridSize.x;
     this.gridYMax = this.currentGridSize.y;
-    //console.log(this.gridXMax)
+
     this.renderGrid();
     this.resetPlayer();
   },
@@ -358,18 +385,14 @@ export default {
 </script>
 
 <template>
-  <div class="d-flex">
+  <div class="d-flex justify-content-center" v-loading="loading" element-loading-text="Loading...">
     <div class="main-container">
       <div class="grid-wrapper">
         <div class="d-flex" v-for="row in grid">
-          <div
-              class="cell"
-              :class="{
-              'cell-block': cell.type === CELL_TYPES.block,
-              'cell-player': cell.type === CELL_TYPES.player
-            }"
-              v-for="cell in row"
-          >
+          <div class="cell" :class="{
+            'cell-block': cell.type === CELL_TYPES.block,
+            'cell-player': cell.type === CELL_TYPES.player
+          }" v-for="cell in row">
             <div v-if="cell.type === CELL_TYPES.block" class="cell-icon icon-brick"></div>
             <div v-if="cell.type === CELL_TYPES.player" class="cell-emoji">{{ playerIcon }}</div>
             <div v-if="cell.type === CELL_TYPES.strawberry" class="cell-emoji">{{ mystrawberry }}</div>
@@ -385,43 +408,47 @@ export default {
 .grid-wrapper {
   width: fit-content;
   border: 1px solid black;
-  background-image: url(../assets/stone_2.jpg);
+  background-image: url(@/assets/stone_2.jpg);
   background-size: 80px;
   position: relative;
 }
+
 .cell {
-  width: 40px;
-  height: 40px;
+  width: 4.75vh;
+  height: 4.75vh;
 }
+
 .cell-icon.icon-brick {
   box-shadow: 0 0 0 1px rgba(42, 41, 37, 0.7) inset;
-  background-image: url(../assets/stone.jpg);
-  white-space:nowrap;
+  background-image: url(@/assets/stone.jpg);
+  white-space: nowrap;
 }
+
 .cell-block {
-    box-shadow: 0 0 0 1px rgba(42, 41, 37, 0.7) inset;
-    background-image: url(../assets/stone.jpg);
-    white-space:nowrap;
+  box-shadow: 0 0 0 1px rgba(42, 41, 37, 0.7) inset;
+  background-image: url(@/assets/stone.jpg);
+  white-space: nowrap;
 }
 
 
 .cell-player {
-   background-color: rgba(78, 239, 21, 0.2);
-   white-space:nowrap;
+  background-color: rgba(78, 239, 21, 0.2);
+  white-space: nowrap;
 }
 
 .cell-icon {
   height: 100%;
   background-size: contain;
   background-repeat: no-repeat;
-  white-space:nowrap;
+  white-space: nowrap;
 }
 
 .cell-emoji {
   padding: 4px;
   font-size: 22px;
-  white-space:nowrap;
+  white-space: nowrap;
 }
+
 .custom-modals {
   align-items: center;
   display: flex;
@@ -434,5 +461,4 @@ export default {
   width: 100%;
   z-index: 1;
 }
-
 </style>
