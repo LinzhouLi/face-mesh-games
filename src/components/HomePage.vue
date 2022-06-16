@@ -1,35 +1,40 @@
 <script setup>
 
-  import { onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-  import { FaceMeshDetection } from './FaceMeshDetection.js';
-  import PacManImageUrl from '@/assets/pacman.jpg';
-  import FlappyBirdImageUrl from '@/assets/flappybird.jpg';
-  import FaceMeshImageUrl from '@/assets/facemesh.gif';
+import { FaceMeshDetection } from './FaceMeshDetection.js';
+import PacManImageUrl from '@/assets/pacman.jpg';
+import FlappyBirdImageUrl from '@/assets/flappybird.jpg';
+import FaceMeshImageUrl from '@/assets/facemesh.gif';
 
-  const router = useRouter();
+const router = useRouter();
 
-  function goto(path) {
-    router.push({ name: path });
-  }
+function goto(path) {
+  router.push({ name: path });
+}
 
-  let faceMeshDet = new FaceMeshDetection(dir => {
-    console.log(dir)
-  });
+let faceMeshDet = new FaceMeshDetection(dir => {
+  console.log(dir)
+});
 
-  onMounted(() => {
-    // faceMeshDet.init();
-  });
+onMounted(() => {
+  // faceMeshDet.init();
+});
 
 </script>
 
 <template>
+  <h1 style="margin-top: 7vh;">Play Games with Your Head!</h1>
+
   <el-row id="main" justify="center">
     <el-col :offset="0" :span="6">
 
       <div class="card" @click="goto('pacman')">
-        <span class="text"><h1>PAC MAN</h1><h2>PLAY!</h2></span>
+        <span class="text">
+          <h1>PAC MAN</h1>
+          <h2>PLAY!</h2>
+        </span>
         <img class="image" :src="PacManImageUrl" />
       </div>
 
@@ -37,7 +42,10 @@
     <el-col :offset="0" :span="6">
 
       <div class="card" @click="goto('flappybird')">
-        <span class="text"><h1>Flappy Bird</h1><h2>PLAY!</h2></span>
+        <span class="text">
+          <h1>Flappy Bird</h1>
+          <h2>PLAY!</h2>
+        </span>
         <img class="image" :src="FlappyBirdImageUrl" />
       </div>
 
@@ -45,7 +53,10 @@
     <el-col :offset="0" :span="6">
 
       <div class="card" @click="goto('facemesh')">
-        <span class="text"><h1>Face Mesh</h1><h2>Try It!</h2></span>
+        <span class="text">
+          <h1>Face Mesh</h1>
+          <h2>Try It!</h2>
+        </span>
         <img class="image" :src="FaceMeshImageUrl" />
       </div>
 
@@ -55,7 +66,7 @@
 
 <style scoped>
 #main {
-  margin-top: 20vh;
+  margin-top: 13vh;
   height: 60vh;
 }
 
@@ -72,20 +83,20 @@
 }
 
 .card .text {
-  position: absolute;		
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
   opacity: 0;
   transition: all 0.8s ease;
-  margin: 0;		
+  margin: 0;
   color: white;
   font: 'Rubik', sans-serif;
 }
 
 .card:hover .text {
-	opacity: 1;
+  opacity: 1;
 }
 
 .card .image {
@@ -95,16 +106,15 @@
   object-fit: cover;
 
   -webkit-transform: scale(1);
-	transform: scale(1);
-	-webkit-transition: 0.8s ease-in-out;
-	transition: 0.8s ease-in-out;
+  transform: scale(1);
+  -webkit-transition: 0.8s ease-in-out;
+  transition: 0.8s ease-in-out;
 }
 
 .card:hover .image {
   opacity: 0.5;
   -webkit-transform: scale(1.3);
-	transform: scale(1.3);
+  transform: scale(1.3);
   transition: all 0.8s ease;
 }
-
 </style>
