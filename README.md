@@ -6,7 +6,7 @@
 
 使用[Mediapipe](https://google.github.io/mediapipe/)检测人脸，推测头部的上下左右，从而作为用户与小游戏交互的方式。实现了两个小游戏：Flappy Bird与走迷宫。
 
-在线体验：
+在线体验：[Face Mesh (linzhouli.github.io)](https://linzhouli.github.io/face-mesh-games/#/)
 
 ## 运行
 
