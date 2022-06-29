@@ -143,11 +143,11 @@ class FaceMeshDetection {
     let leftEye = this.getMidPoint(landmarks, this.#leftEyePoints);
     let rightEye = this.getMidPoint(landmarks, this.#rightEyePoints);
     let noise = this.getMidPoint(landmarks, this.#nosePoints);
-    let triangle = new THREE.Triangle(leftEye, rightEye, noise);
+    let triangle = new THREE.Triangle(leftEye, rightEye, noise); // 计算面部三角面
     let normal = new THREE.Vector3();
-    triangle.getNormal(normal);
+    triangle.getNormal(normal); // 计算面部法向量
 
-    let result;
+    let result; // 根据法向量朝向判断头部方向
     if (normal.x > this.#rightThres) result = DIRECTION.RIGHT;
     else if (normal.x < this.#leftThres) result = DIRECTION.LEFT;
     else if (normal.y > this.#upThres) result = DIRECTION.UP;
