@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 
 import HomePage from './components/HomePage.vue';
 import PacMan from './components/PacMan.vue';
@@ -17,7 +17,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
 });
 
